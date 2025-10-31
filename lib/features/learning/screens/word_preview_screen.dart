@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:prac5/data/topics_data.dart';
-import 'package:prac5/features/learning/screens/flashcard_screen.dart';
-
 import '../../../models/topic.dart';
 
 class WordPreviewScreen extends StatelessWidget {
@@ -12,7 +11,8 @@ class WordPreviewScreen extends StatelessWidget {
     return ValueListenableBuilder<List<Topic>>(
       valueListenable: TopicsData.topicsNotifier,
       builder: (context, topics, child) {
-        final topic = topics.firstWhere((t) => t.selected, orElse: () => topics.first);
+        final topic = topics.firstWhere((t) => t.selected,
+            orElse: () => topics.first);
         final words = topic.words;
 
         return Scaffold(
@@ -20,7 +20,7 @@ class WordPreviewScreen extends StatelessWidget {
             title: const Text('Предпросмотр слов'),
             leading: IconButton(
               icon: const Icon(Icons.arrow_back),
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => context.pop(),
             ),
           ),
           backgroundColor: const Color(0xFFcfd9df),
@@ -31,24 +31,22 @@ class WordPreviewScreen extends StatelessWidget {
             itemBuilder: (context, index) {
               final word = words[index];
               return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                margin: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 4),
                 child: ListTile(
                   title: Text(word.word),
                   subtitle: Text(word.translation),
                   trailing: word.learned
-                      ? const Icon(Icons.check_circle, color: Colors.green)
+                      ? const Icon(Icons.check_circle,
+                      color: Colors.green)
                       : const Icon(Icons.radio_button_unchecked),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => FlashCardScreen(
-                          topic: topic,
-                          learningNew: !word.learned,
-                        ),
-                      ),
-                    );
-                  },
+                  onTap: () => context.push(
+                    '/flashcard',
+                    extra: {
+                      'topic': topic,
+                      'learningNew': !word.learned
+                    },
+                  ),
                 ),
               );
             },

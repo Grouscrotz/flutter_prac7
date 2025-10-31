@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:prac5/data/topics_data.dart';
 import 'package:prac5/models/topic.dart';
 import 'package:prac5/models/word.dart';
 import 'package:prac5/features/dictionaries/widgets/topic_card.dart';
-import 'package:prac5/features/learning/screens/learning_screen.dart';
-import 'package:prac5/features/progress/screens/progress_screen.dart';
 
 class DictionariesScreen extends StatefulWidget {
   const DictionariesScreen({super.key});
@@ -22,16 +21,11 @@ class _DictionariesScreenState extends State<DictionariesScreen> {
     setState(() => _selectedIndex = index);
 
     if (index == 1) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const LearningScreen()),
-      );
+      context.go('/learning');
     } else if (index == 2) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const ProgressScreen()),
-      );
+      context.go('/progress');
     }
+
   }
 
   void _addTopic() {
@@ -57,7 +51,8 @@ class _DictionariesScreenState extends State<DictionariesScreen> {
                   controller: _topicController,
                   decoration: InputDecoration(
                     hintText: 'Новый словарь',
-                    suffixIcon: IconButton(icon: const Icon(Icons.add), onPressed: _addTopic),
+                    suffixIcon: IconButton(
+                        icon: const Icon(Icons.add), onPressed: _addTopic),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -107,16 +102,22 @@ class _DictionariesScreenState extends State<DictionariesScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: wordCtrl, decoration: const InputDecoration(labelText: 'Слово')),
-            TextField(controller: transCtrl, decoration: const InputDecoration(labelText: 'Перевод')),
+            TextField(
+                controller: wordCtrl,
+                decoration: const InputDecoration(labelText: 'Слово')),
+            TextField(
+                controller: transCtrl,
+                decoration: const InputDecoration(labelText: 'Перевод')),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Отмена')),
+          TextButton(
+              onPressed: () => Navigator.pop(context), child: const Text('Отмена')),
           ElevatedButton(
             onPressed: () {
               if (wordCtrl.text.isNotEmpty && transCtrl.text.isNotEmpty) {
-                topic.words.add(Word(word: wordCtrl.text, translation: transCtrl.text));
+                topic.words
+                    .add(Word(word: wordCtrl.text, translation: transCtrl.text));
                 TopicsData.notifyUpdate();
               }
               Navigator.pop(context);
@@ -138,7 +139,9 @@ class _DictionariesScreenState extends State<DictionariesScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(topic.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              Text(topic.name,
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold)),
               const SizedBox(height: 16),
               SizedBox(
                 height: 300,
@@ -162,7 +165,9 @@ class _DictionariesScreenState extends State<DictionariesScreen> {
                   },
                 ),
               ),
-              TextButton(onPressed: () => Navigator.pop(context), child: const Text('Закрыть')),
+              TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Закрыть')),
             ],
           ),
         ),

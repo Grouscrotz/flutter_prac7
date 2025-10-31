@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:prac5/data/topics_data.dart';
-import 'package:prac5/features/learning/screens/word_preview_screen.dart';
-
 import '../../../models/topic.dart';
 
 class TopicSettingsScreen extends StatelessWidget {
@@ -12,14 +11,15 @@ class TopicSettingsScreen extends StatelessWidget {
     return ValueListenableBuilder<List<Topic>>(
       valueListenable: TopicsData.topicsNotifier,
       builder: (context, topics, child) {
-        final topic = topics.firstWhere((t) => t.selected, orElse: () => topics.first);
+        final topic = topics.firstWhere((t) => t.selected,
+            orElse: () => topics.first);
 
         return Scaffold(
           appBar: AppBar(
             title: const Text('Настройки словаря'),
             leading: IconButton(
               icon: const Icon(Icons.arrow_back),
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => context.pop(),
             ),
           ),
           backgroundColor: const Color(0xFFcfd9df),
@@ -42,12 +42,7 @@ class TopicSettingsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const WordPreviewScreen()),
-                    );
-                  },
+                  onPressed: () => context.push('/word_preview'),
                   child: const Text('Предпросмотр слов'),
                 ),
               ],

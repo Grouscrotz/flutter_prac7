@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:prac5/data/topics_data.dart';
 import 'package:prac5/features/learning/widgets/button.dart';
-import 'package:prac5/features/learning/screens/topic_settings_screen.dart';
-import 'package:prac5/features/learning/screens/flashcard_screen.dart';
-import 'package:prac5/features/dictionaries/screens/dictionaries_screen.dart';
-import 'package:prac5/features/progress/screens/progress_screen.dart';
-
 import '../../../models/topic.dart';
 
 class LearningScreen extends StatefulWidget {
@@ -23,15 +19,9 @@ class _LearningScreenState extends State<LearningScreen> {
     setState(() => _selectedIndex = index);
 
     if (index == 0) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const DictionariesScreen()),
-      );
+      context.go('/dictionaries');
     } else if (index == 2) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const ProgressScreen()),
-      );
+      context.go('/progress');
     }
   }
 
@@ -45,7 +35,8 @@ class _LearningScreenState extends State<LearningScreen> {
           if (topics.isEmpty) {
             return const Center(child: Text('Нет словарей'));
           }
-          final topic = topics.firstWhere((t) => t.selected, orElse: () => topics.first);
+          final topic = topics.firstWhere((t) => t.selected,
+              orElse: () => topics.first);
           final newCount = topic.words.where((w) => !w.learned).length;
           final repeatCount = topic.words.where((w) => w.learned).length;
 
@@ -54,24 +45,24 @@ class _LearningScreenState extends State<LearningScreen> {
             padding: const EdgeInsets.all(16),
             child: Center(
               child: Card(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
                 elevation: 6,
                 child: Padding(
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('Словарь: ${topic.name}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                      Text('Словарь: ${topic.name}',
+                          style: const TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 30),
                       MyButton(
                         icon: Icons.settings,
                         iconColor: Colors.blue,
                         label: 'Настройки словаря',
                         counter: 1,
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const TopicSettingsScreen()),
-                        ),
+                        onPressed: () => context.push('/topic_settings'),
                       ),
                       const SizedBox(height: 16),
                       MyButton(
@@ -79,14 +70,9 @@ class _LearningScreenState extends State<LearningScreen> {
                         iconColor: Colors.green,
                         label: 'Учить новые слова',
                         counter: newCount,
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => FlashCardScreen(
-                              topic: topic,
-                              learningNew: true,
-                            ),
-                          ),
+                        onPressed: () => context.push(
+                          '/flashcard',
+                          extra: {'topic': topic, 'learningNew': true},
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -95,14 +81,9 @@ class _LearningScreenState extends State<LearningScreen> {
                         iconColor: Colors.orangeAccent,
                         label: 'Повторить слова',
                         counter: repeatCount,
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => FlashCardScreen(
-                              topic: topic,
-                              learningNew: false,
-                            ),
-                          ),
+                        onPressed: () => context.push(
+                          '/flashcard',
+                          extra: {'topic': topic, 'learningNew': false},
                         ),
                       ),
                     ],
@@ -119,7 +100,8 @@ class _LearningScreenState extends State<LearningScreen> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Словари'),
           BottomNavigationBarItem(icon: Icon(Icons.school), label: 'Изучение'),
-          BottomNavigationBarItem(icon: Icon(Icons.analytics), label: 'Прогресс'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.analytics), label: 'Прогресс'),
         ],
       ),
     );

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:prac5/data/topics_data.dart';
-import 'package:prac5/features/dictionaries/screens/dictionaries_screen.dart';
-import 'package:prac5/features/learning/screens/learning_screen.dart';
-
 import '../../../models/topic.dart';
 
 class ProgressScreen extends StatefulWidget {
@@ -20,15 +18,9 @@ class _ProgressScreenState extends State<ProgressScreen> {
     setState(() => _selectedIndex = index);
 
     if (index == 0) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const DictionariesScreen()),
-      );
+      context.go('/dictionaries');
     } else if (index == 1) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const LearningScreen()),
-      );
+      context.go('/learning');
     }
   }
 
@@ -36,11 +28,14 @@ class _ProgressScreenState extends State<ProgressScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Прогресс')),
+      backgroundColor: Color(0xFFbac3c8),
       body: ValueListenableBuilder<List<Topic>>(
         valueListenable: TopicsData.topicsNotifier,
         builder: (context, topics, child) {
           final total = topics.expand((t) => t.words).length;
-          final learned = topics.expand((t) => t.words.where((w) => w.learned)).length;
+          final learned = topics
+              .expand((t) => t.words.where((w) => w.learned))
+              .length;
           final progress = total > 0 ? (learned / total) * 100 : 0;
 
           return Padding(
@@ -52,11 +47,14 @@ class _ProgressScreenState extends State<ProgressScreen> {
                     padding: const EdgeInsets.all(20),
                     child: Column(
                       children: [
-                        const Text('Общий прогресс', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        const Text('Общий прогресс',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 16),
                         LinearProgressIndicator(value: progress / 100),
                         const SizedBox(height: 8),
-                        Text('${progress.toStringAsFixed(1)}% ($learned/$total)'),
+                        Text(
+                            '${progress.toStringAsFixed(1)}% ($learned/$total)'),
                       ],
                     ),
                   ),
@@ -67,7 +65,11 @@ class _ProgressScreenState extends State<ProgressScreen> {
                     itemCount: topics.length,
                     itemBuilder: (_, i) {
                       final t = topics[i];
-                      final p = t.words.isEmpty ? 0 : (t.words.where((w) => w.learned).length / t.words.length) * 100;
+                      final p = t.words.isEmpty
+                          ? 0
+                          : (t.words.where((w) => w.learned).length /
+                          t.words.length) *
+                          100;
                       return ListTile(
                         title: Text(t.name),
                         trailing: Text('${p.toInt()}%'),

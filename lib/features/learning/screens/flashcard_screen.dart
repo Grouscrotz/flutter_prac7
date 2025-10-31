@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:prac5/models/topic.dart';
 import 'package:prac5/models/word.dart';
 import 'package:prac5/features/learning/widgets/word_card.dart';
@@ -7,7 +8,8 @@ import 'package:prac5/features/learning/widgets/emptyState.dart';
 class FlashCardScreen extends StatefulWidget {
   final Topic topic;
   final bool learningNew;
-  const FlashCardScreen({super.key, required this.topic, required this.learningNew});
+  const FlashCardScreen(
+      {super.key, required this.topic, required this.learningNew});
 
   @override
   State<FlashCardScreen> createState() => _FlashCardScreenState();
@@ -37,7 +39,7 @@ class _FlashCardScreenState extends State<FlashCardScreen> {
         title: Text('Карточки: ${widget.topic.name}'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.pop(),
         ),
       ),
       backgroundColor: const Color(0xFFcfd9df),
