@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:prac5/data/topics_data.dart';
 import 'package:prac5/models/topic.dart';
 import 'package:prac5/models/word.dart';
 import 'package:prac5/features/dictionaries/widgets/topic_card.dart';
+import 'package:prac5/features/learning/screens/learning_screen.dart';
+import 'package:prac5/features/progress/screens/progress_screen.dart';
 
 class DictionariesScreen extends StatefulWidget {
-  final List<Topic> topics;
-  final Function(Topic) onSelectTopic;
-  const DictionariesScreen({super.key, required this.topics, required this.onSelectTopic});
+  const DictionariesScreen({super.key});
 
   @override
   State<DictionariesScreen> createState() => _DictionariesScreenState();
@@ -14,60 +15,117 @@ class DictionariesScreen extends StatefulWidget {
 
 class _DictionariesScreenState extends State<DictionariesScreen> {
   final TextEditingController _topicController = TextEditingController();
-  final TextEditingController _wordController = TextEditingController();
-  final TextEditingController _translationController = TextEditingController();
+  int _selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    if (index == _selectedIndex) return;
+    setState(() => _selectedIndex = index);
+    if (index == 0) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const DictionariesScreen()),
+      );
+    } if (index == 1) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LearningScreen()),
+      );
+    } else if (index == 2) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const ProgressScreen()),
+      );
+    }
+  }
 
   void _addTopic() {
     final text = _topicController.text.trim();
     if (text.isEmpty) return;
-    setState(() {
-      widget.topics.add(Topic(name: text, words: []));
-      _topicController.clear();
-    });
+    TopicsData.addTopic(Topic(name: text, words: []));
+    _topicController.clear();
   }
 
-  void _addWord(Topic topic) {
-    final wordText = _wordController.text.trim();
-    final translationText = _translationController.text.trim();
-    if (wordText.isEmpty || translationText.isEmpty) return;
-    setState(() {
-      topic.words.add(Word(word: wordText, translation: translationText));
-      _wordController.clear();
-      _translationController.clear();
-    });
-  }
-
-  void _resetProgress(Topic topic) {
-    setState(() {
-      for (var word in topic.words) {
-        word.learned = false;
-      }
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Прогресс для "${topic.name}" сброшен!')),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Словари')),
+      body: ValueListenableBuilder<List<Topic>>(
+        valueListenable: TopicsData.topicsNotifier,
+        builder: (context, topics, child) {
+          return Container(
+            color: const Color(0xFFbac3c8),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                TextField(
+                  controller: _topicController,
+                  decoration: InputDecoration(
+                    hintText: 'Новый словарь',
+                    suffixIcon: IconButton(icon: const Icon(Icons.add), onPressed: _addTopic),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: topics.length,
+                    itemBuilder: (context, index) {
+                      final topic = topics[index];
+                      return TopicCard(
+                        topic: topic,
+                        selected: topic.selected,
+                        onTap: () => TopicsData.selectTopic(topic),
+                        onResetProgress: () {
+                          for (var w in topic.words) w.learned = false;
+                          TopicsData.notifyUpdate();
+                        },
+                        onShowWords: () => _showWordsDialog(topic),
+                        onAddWord: () => _showAddWordDialog(topic),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Словари'),
+          BottomNavigationBarItem(icon: Icon(Icons.school), label: 'Изучение'),
+          BottomNavigationBarItem(icon: Icon(Icons.analytics), label: 'Прогресс'),
+        ],
+      ),
     );
   }
 
   void _showAddWordDialog(Topic topic) {
+    final wordCtrl = TextEditingController();
+    final transCtrl = TextEditingController();
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text('Добавить слово в "${topic.name}"'),
+        title: Text('Добавить в "${topic.name}"'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: _wordController, decoration: InputDecoration(labelText: 'Слово')),
-            TextField(controller: _translationController, decoration: InputDecoration(labelText: 'Перевод')),
+            TextField(controller: wordCtrl, decoration: const InputDecoration(labelText: 'Слово')),
+            TextField(controller: transCtrl, decoration: const InputDecoration(labelText: 'Перевод')),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text('Отмена')),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Отмена')),
           ElevatedButton(
             onPressed: () {
-              _addWord(topic);
+              if (wordCtrl.text.isNotEmpty && transCtrl.text.isNotEmpty) {
+                topic.words.add(Word(word: wordCtrl.text, translation: transCtrl.text));
+                TopicsData.notifyUpdate();
+              }
               Navigator.pop(context);
             },
-            child: Text('Добавить'),
+            child: const Text('Добавить'),
           ),
         ],
       ),
@@ -79,92 +137,40 @@ class _DictionariesScreenState extends State<DictionariesScreen> {
       context: context,
       builder: (_) => Dialog(
         child: Container(
-          width: MediaQuery.of(context).size.width * 0.8,
-          padding: EdgeInsets.all(16),
+          width: 300,
+          padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Слова в "${topic.name}"',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              SizedBox(height: 16),
-              Container(
-                height: 350,
-                child: ListView.separated(
-                  shrinkWrap: true,
+              Text(topic.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
+              SizedBox(
+                height: 300,
+                child: ListView.builder(
                   itemCount: topic.words.length,
-                  itemBuilder: (_, index) {
-                    final word = topic.words[index];
+                  itemBuilder: (_, i) {
+                    final w = topic.words[i];
                     return ListTile(
-                      dense: true,
-                      title: Text(word.word),
-                      subtitle: Text(word.translation),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (word.learned)
-                            Icon(Icons.check_circle, color: Colors.green, size: 20),
-                          SizedBox(width: 8),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                topic.words.removeAt(index);
-                              });
-                              Navigator.pop(context);
-                              _showWordsDialog(topic);
-                            },
-                            child: Icon(Icons.delete, color: Colors.red, size: 20),
-                          ),
-                        ],
+                      title: Text(w.word),
+                      subtitle: Text(w.translation),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () {
+                          topic.words.removeAt(i);
+                          TopicsData.notifyUpdate();
+                          Navigator.pop(context);
+                          _showWordsDialog(topic);
+                        },
                       ),
                     );
                   },
-                  separatorBuilder: (_, __) => Divider(),
                 ),
               ),
-              SizedBox(height: 16),
-              TextButton(onPressed: () => Navigator.pop(context), child: Text('Закрыть')),
+              TextButton(onPressed: () => Navigator.pop(context), child: const Text('Закрыть')),
             ],
           ),
         ),
       ),
     );
   }
-
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(color: Color(0xFFbac3c8)),
-      padding: EdgeInsets.all(16),
-      child: Column(
-        children: [
-          SizedBox(height: 40),
-          TextField(
-            controller: _topicController,
-            decoration: InputDecoration(
-              hintText: 'Новый словарь',
-              suffixIcon: IconButton(icon: Icon(Icons.add), onPressed: _addTopic),
-            ),
-          ),
-          SizedBox(height: 20),
-          Expanded(
-            child: ListView.builder(
-              itemCount: widget.topics.length,
-              itemBuilder: (context, index) {
-                final topic = widget.topics[index];
-                return TopicCard(
-                  topic: topic,
-                  selected: topic.selected,
-                  onTap: () => widget.onSelectTopic(topic),
-                  onResetProgress: () => _resetProgress(topic),
-                  onShowWords: () => _showWordsDialog(topic),
-                  onAddWord: () => _showAddWordDialog(topic),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-  }
+}

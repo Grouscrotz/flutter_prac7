@@ -19,13 +19,28 @@ class _FlashCardScreenState extends State<FlashCardScreen> {
   bool showTranslation = false;
 
   @override
+  void initState() {
+    super.initState();
+    wordsToLearn = widget.learningNew
+        ? widget.topic.words.where((w) => !w.learned).toList()
+        : widget.topic.words.where((w) => w.learned).toList();
+  }
+
+  @override
   Widget build(BuildContext context) {
     if (wordsToLearn.isEmpty) return const EmptyStateScreen();
+
     final word = wordsToLearn[currentIndex];
 
     return Scaffold(
-      backgroundColor: Color(0xFFcfd9df),
-      appBar: AppBar(title: Text('Карточки: ${widget.topic.name}')),
+      appBar: AppBar(
+        title: Text('Карточки: ${widget.topic.name}'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      backgroundColor: const Color(0xFFcfd9df),
       body: Center(
         child: WordCard(
           word: word,
@@ -38,25 +53,17 @@ class _FlashCardScreenState extends State<FlashCardScreen> {
     );
   }
 
-  @override
-  void initState() {
-    super.initState();
-    wordsToLearn = widget.learningNew
-        ? widget.topic.words.where((w) => !w.learned).toList()
-        : widget.topic.words.where((w) => w.learned).toList();
-  }
-
   void _moveToNextWord({bool remembered = false}) {
     setState(() {
       if (remembered && widget.learningNew) {
         wordsToLearn[currentIndex].learned = true;
       }
       showTranslation = false;
-      if (wordsToLearn.isEmpty) return;
       currentIndex = (currentIndex + 1) % wordsToLearn.length;
       if (currentIndex == 0 && remembered) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Слова закончились!')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Слова закончились!')),
+        );
       }
     });
   }
@@ -69,6 +76,4 @@ class _FlashCardScreenState extends State<FlashCardScreen> {
       showTranslation = false;
     });
   }
-
 }
-
