@@ -1,43 +1,41 @@
 import 'package:flutter/material.dart';
 
-class LearningButton extends StatelessWidget {
+class MyButton extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
   final String label;
+  final int counter;
   final VoidCallback onPressed;
-  final int? counter;
 
-  const LearningButton({
+  const MyButton({
     super.key,
     required this.icon,
     required this.iconColor,
     required this.label,
+    required this.counter,
     required this.onPressed,
-    this.counter,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          elevation: 3,
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-        ),
-        onPressed: onPressed,
-        child: Row(children: [Icon(icon, color: iconColor),
-            const SizedBox(width: 12),
-            Expanded(child: Text(label,
-                style: const TextStyle(fontSize: 18, color: Colors.black),
-              ),
-            ),
-            if (counter != null) Text('$counter',
-                style: const TextStyle(color: Colors.black87, fontSize: 18),
-              ),
-          ],
-        ),
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: iconColor),
+          const SizedBox(width: 12),
+          Text(label),
+          const Spacer(),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(color: Colors.grey.shade300, shape: BoxShape.circle),
+            child: Text('$counter', style: const TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        ],
       ),
     );
   }

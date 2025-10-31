@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:prac5/data/topics_data.dart';
 import 'package:prac5/features/learning/widgets/button.dart';
+import 'package:prac5/features/learning/screens/topic_settings_screen.dart';
 import 'package:prac5/features/learning/screens/flashcard_screen.dart';
 import 'package:prac5/features/dictionaries/screens/dictionaries_screen.dart';
 import 'package:prac5/features/progress/screens/progress_screen.dart';
@@ -62,25 +63,46 @@ class _LearningScreenState extends State<LearningScreen> {
                     children: [
                       Text('Словарь: ${topic.name}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 30),
-                      LearningButton(
+                      MyButton(
+                        icon: Icons.settings,
+                        iconColor: Colors.blue,
+                        label: 'Настройки словаря',
+                        counter: 1,
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const TopicSettingsScreen()),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      MyButton(
                         icon: Icons.play_arrow,
                         iconColor: Colors.green,
                         label: 'Учить новые слова',
                         counter: newCount,
                         onPressed: () => Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => FlashCardScreen(topic: topic, learningNew: true)),
+                          MaterialPageRoute(
+                            builder: (_) => FlashCardScreen(
+                              topic: topic,
+                              learningNew: true,
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
-                      LearningButton(
+                      MyButton(
                         icon: Icons.refresh,
                         iconColor: Colors.orangeAccent,
                         label: 'Повторить слова',
                         counter: repeatCount,
                         onPressed: () => Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => FlashCardScreen(topic: topic, learningNew: false)),
+                          MaterialPageRoute(
+                            builder: (_) => FlashCardScreen(
+                              topic: topic,
+                              learningNew: false,
+                            ),
+                          ),
                         ),
                       ),
                     ],

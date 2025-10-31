@@ -20,12 +20,8 @@ class _DictionariesScreenState extends State<DictionariesScreen> {
   void _onItemTapped(int index) {
     if (index == _selectedIndex) return;
     setState(() => _selectedIndex = index);
-    if (index == 0) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const DictionariesScreen()),
-      );
-    } if (index == 1) {
+
+    if (index == 1) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const LearningScreen()),

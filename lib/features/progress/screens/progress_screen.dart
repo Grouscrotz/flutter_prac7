@@ -36,7 +36,6 @@ class _ProgressScreenState extends State<ProgressScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Прогресс')),
-      backgroundColor: const Color(0xFFcfd9df),
       body: ValueListenableBuilder<List<Topic>>(
         valueListenable: TopicsData.topicsNotifier,
         builder: (context, topics, child) {
