@@ -55,12 +55,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'Словарное приложение',
-      routerConfig: _router,
+      title: 'Приложение для изучения иностранных слов',
       theme: ThemeData(primarySwatch: Colors.indigo),
       debugShowCheckedModeBanner: false,
-
+      routerConfig: _router,
     );
-  }
 
 }

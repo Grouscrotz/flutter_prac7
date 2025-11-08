@@ -1,3 +1,4 @@
+// features/dictionaries/screens/dictionaries_screen.dart
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prac5/data/topics_data.dart';
@@ -14,19 +15,6 @@ class DictionariesScreen extends StatefulWidget {
 
 class _DictionariesScreenState extends State<DictionariesScreen> {
   final TextEditingController _topicController = TextEditingController();
-  int _selectedIndex = 0;
-
-  void _onItemTapped(int index) {
-    if (index == _selectedIndex) return;
-    setState(() => _selectedIndex = index);
-
-    if (index == 1) {
-      context.go('/learning');
-    } else if (index == 2) {
-      context.go('/progress');
-    }
-
-  }
 
   void _addTopic() {
     final text = _topicController.text.trim();
@@ -38,26 +26,47 @@ class _DictionariesScreenState extends State<DictionariesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Словари')),
-      body: ValueListenableBuilder<List<Topic>>(
-        valueListenable: TopicsData.topicsNotifier,
-        builder: (context, topics, child) {
-          return Container(
-            color: const Color(0xFFbac3c8),
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                TextField(
-                  controller: _topicController,
-                  decoration: InputDecoration(
-                    hintText: 'Новый словарь',
-                    suffixIcon: IconButton(
-                        icon: const Icon(Icons.add), onPressed: _addTopic),
-                  ),
+      appBar: AppBar(
+        title: const Text('Словари'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.menu_book),
+            tooltip: 'Словари',
+            onPressed: () {},
+          ),
+          IconButton(
+            icon: const Icon(Icons.school),
+            tooltip: 'Изучение',
+            onPressed: () => context.go('/learning'),
+          ),
+          IconButton(
+            icon: const Icon(Icons.analytics),
+            tooltip: 'Прогресс',
+            onPressed: () => context.go('/progress'),
+          ),
+        ],
+      ),
+      backgroundColor: const Color(0xFFbac3c8),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            TextField(
+              controller: _topicController,
+              decoration: InputDecoration(
+                hintText: 'Новый словарь',
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed: _addTopic,
                 ),
-                const SizedBox(height: 20),
-                Expanded(
-                  child: ListView.builder(
+              ),
+            ),
+            const SizedBox(height: 20),
+            Expanded(
+              child: ValueListenableBuilder<List<Topic>>(
+                valueListenable: TopicsData.topicsNotifier,
+                builder: (context, topics, child) {
+                  return ListView.builder(
                     itemCount: topics.length,
                     itemBuilder: (context, index) {
                       final topic = topics[index];
@@ -73,21 +82,12 @@ class _DictionariesScreenState extends State<DictionariesScreen> {
                         onAddWord: () => _showAddWordDialog(topic),
                       );
                     },
-                  ),
-                ),
-              ],
+                  );
+                },
+              ),
             ),
-          );
-        },
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Словари'),
-          BottomNavigationBarItem(icon: Icon(Icons.school), label: 'Изучение'),
-          BottomNavigationBarItem(icon: Icon(Icons.analytics), label: 'Прогресс'),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -112,12 +112,13 @@ class _DictionariesScreenState extends State<DictionariesScreen> {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context), child: const Text('Отмена')),
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Отмена')),
           ElevatedButton(
             onPressed: () {
               if (wordCtrl.text.isNotEmpty && transCtrl.text.isNotEmpty) {
-                topic.words
-                    .add(Word(word: wordCtrl.text, translation: transCtrl.text));
+                topic.words.add(
+                    Word(word: wordCtrl.text, translation: transCtrl.text));
                 TopicsData.notifyUpdate();
               }
               Navigator.pop(context);
